@@ -1,8 +1,18 @@
 # About this Repo
 
-This is the Git repo of the official Docker image for [httpd](https://registry.hub.docker.com/_/httpd/). See the
-Hub page for the full readme on how to use the Docker image and for information
-regarding contributing and issues.
+This repository is made to quickly debug Apache 2.2's rewrite rules.
 
-The full readme is generated over in [docker-library/docs](https://github.com/docker-library/docs),
-specificially in [docker-library/docs/httpd](https://github.com/docker-library/docs/tree/master/httpd).
+## Usage
+
+Run by:
+
+```
+cd 2.2
+docker build . | tee /dev/tty | tail -1 | awk '{print $3}' | xargs docker run --net=host
+```
+
+Debug it by:
+
+```
+curl -v http://$docker_ip:80/a.gif -H 'Host: example.jp'
+```
