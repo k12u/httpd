@@ -48,7 +48,7 @@ RUN buildDeps=' \
 	&& tar -xvf httpd.tar.bz2 -C src/httpd --strip-components=1 \
 	&& rm httpd.tar.bz2* \
 	&& cd src/httpd \
-	&& ./configure --enable-so --enable-ssl --prefix=$HTTPD_PREFIX \
+	&& ./configure --enable-so --enable-ssl --prefix=$HTTPD_PREFIX --enable-rewrite=shared \
 	&& make -j"$(nproc)" \
 	&& make install \
 	&& cd ../../ \
@@ -58,8 +58,15 @@ RUN buildDeps=' \
 		s!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g; \
 		' /usr/local/apache2/conf/httpd.conf \
 	&& apt-get purge -y --auto-remove $buildDeps
+RUN apt-get -y update
+RUN apt-get -y install strace
 
 COPY httpd-foreground /usr/local/bin/
 
 EXPOSE 80
+COPY ./httpd.conf /usr/local/apache2/conf/httpd.conf
+RUN mkdir -p /usr/local/apache2/docs/dummy-host.example.com
+RUN echo 1 > /usr/local/apache2/docs/dummy-host.example.com/index.html
+RUN mkdir -p /usr/local/apache2/docs/dummy-host2.example.com
+RUN echo 2 > /usr/local/apache2/docs/dummy-host2.example.com/index.html
 CMD ["httpd-foreground"]
